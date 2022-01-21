@@ -1,4 +1,4 @@
-import './styles/main.sass';
+import '@/styles/main.scss';
 
 import { ApolloProvider } from '@apollo/client';
 import React from 'react';

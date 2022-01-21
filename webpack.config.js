@@ -2,8 +2,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin');
-const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const zlib = require('zlib');
 
 module.exports = {
   entry: './src/index.tsx',
@@ -11,7 +14,9 @@ module.exports = {
   output: {
     path: path.join(__dirname, '/dist'),
     publicPath: '/',
-    filename: 'bundle.js',
+    filename: '[name].[fullhash:8].bundle.js',
+    chunkFilename: '[name].[fullhash:8].bundle.js',
+    clean: true,
   },
   devtool: 'source-map',
   resolve: {
@@ -31,8 +36,13 @@ module.exports = {
       },
       {
         test: /\.(scss|sass|css)$/,
-        include: [path.resolve(__dirname, 'src', 'styles')],
-        use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
+        use: [
+          'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'sass-loader',
+          MiniCssExtractPlugin.loader,
+        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/,
@@ -42,18 +52,47 @@ module.exports = {
     ],
   },
   plugins: [
+    new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: './public/index.html',
       hash: true,
     }),
-    new MomentTimezoneDataPlugin({
-      startYear: 2022,
-      matchCountries: 'ID',
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      openAnalyzer: false,
     }),
-    new MomentLocalesPlugin({
-      localesToKeep: ['id'],
+    new CompressionPlugin({
+      filename: '[path][base].gz',
+      algorithm: 'gzip',
+      test: /\.js$|\.css$|\.html$/,
+    }),
+    new CompressionPlugin({
+      filename: '[path][base].br',
+      algorithm: 'brotliCompress',
+      test: /\.(js|css|html|svg)$/,
+      compressionOptions: {
+        params: {
+          [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+        },
+      },
+      threshold: 10240,
+      minRatio: 0.8,
     }),
   ],
+  /*optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          vendors: {
+            test: /[\\/]node_modules[\\/]/, ///< put all used node_modules modules in this chunk
+            name: 'vendor', ///< name of bundle
+            chunks: 'all', ///< type of code to put in this bundle
+          },
+        },
+      },
+    },
+  },*/
   devServer: {
     port: 3000,
     open: true,
