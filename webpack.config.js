@@ -10,7 +10,7 @@ module.exports = {
   target: 'web',
   output: {
     path: path.join(__dirname, '/dist'),
-    publicPath: 'auto',
+    publicPath: '/',
     filename: 'bundle.js',
   },
   devtool: 'source-map',
@@ -58,5 +58,6 @@ module.exports = {
     port: 3000,
     open: true,
     hot: true,
+    historyApiFallback: true,
   },
 };

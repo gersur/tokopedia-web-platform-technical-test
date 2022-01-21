@@ -1,20 +1,40 @@
 import './styles/main.sass';
 
+import { ApolloProvider } from '@apollo/client';
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route,
+  Routes,
+} from 'react-router-dom';
 
-import HomePage from './pages/HomePage';
+import { apolloClient } from './api';
+import MyPokemon from './pages/MyPokemon';
 import NotFoundPage from './pages/NotFoundPage';
+import PokemonDetail from './pages/PokemonDetail';
+import PokemonList from './pages/PokemonList';
 import { ROUTES } from './resources/routes-constants';
 
 const RootComponent: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="*" element={<NotFoundPage />} />
-        <Route path={ROUTES.HOMEPAGE_ROUTE} element={<HomePage />} />
-      </Routes>
-    </Router>
+    <ApolloProvider client={apolloClient}>
+      <Router>
+        <Routes>
+          <Route
+            path={ROUTES.HOMEPAGE}
+            element={<Navigate to={ROUTES.POKEMON_LIST} replace />}
+          />
+          <Route path={ROUTES.POKEMON_LIST} element={<PokemonList />} />
+          <Route path={ROUTES.MY_POKEMON} element={<MyPokemon />} />
+          <Route
+            path={ROUTES.POKEMON_DETAIL + '/:pokemonName'}
+            element={<PokemonDetail />}
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </ApolloProvider>
   );
 };
 

@@ -1,0 +1,9 @@
+{
+  "directory": [
+    "./src/api",
+    "./src/resources",
+    "./src/store",
+    "./src/types",
+    "./src/utility"
+  ]
+}

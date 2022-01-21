@@ -1,3 +1,6 @@
 export const ROUTES = {
-  HOMEPAGE_ROUTE: '/',
+  HOMEPAGE: '/',
+  POKEMON_LIST: '/pokemon-list',
+  POKEMON_DETAIL: '/pokemon-detail',
+  MY_POKEMON: '/my-pokemon',
 };
