@@ -29,9 +29,11 @@
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
     "barrel": "barrelsby --delete --singleQuotes -c barrelsby.json",
     "_download-schema": "npx apollo service:download --endpoint=https://graphql-pokeapi.vercel.app/api/graphql graphql-schema.json",
-    "codegen": "npm run _download-schema && npx apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --tagName=gql && npm run barrel"
+    "codegen": "npm run _download-schema && npx apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --tagName=gql && npm run barrel",
+    "predeploy": "cross-env GH_PAGES=true webpack --mode=production",
+    "deploy": "gh-pages -d dist"
   },
-  "homepage": ".",
+  "homepage": "https://gersur.github.io/tokopedia-web-platform-technical-test",
   "devDependencies": {
     "@iconify/react": "^3.1.2",
     "@testing-library/jest-dom": "^5.16.1",
@@ -46,6 +48,7 @@
     "@typescript-eslint/parser": "^5.9.1",
     "barrelsby": "^2.3.2",
     "compression-webpack-plugin": "^9.2.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.5.1",
     "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
@@ -54,6 +57,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "file-loader": "^6.2.0",
+    "gh-pages": "^3.2.3",
     "node-sass": "^7.0.1",
     "postcss-loader": "^6.2.1",
     "prettier": "^2.5.1",

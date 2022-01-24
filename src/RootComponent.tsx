@@ -17,9 +17,13 @@ import PokemonList from './pages/PokemonList';
 import { ROUTES } from './resources/routes-constants';
 
 const RootComponent: React.FC = () => {
+  const isGHPages = process.env.gh_pages === 'true';
+
   return (
     <ApolloProvider client={apolloClient}>
-      <Router>
+      <Router
+        basename={isGHPages ? '/tokopedia-web-platform-technical-test' : ''}
+      >
         <Routes>
           <Route
             path={ROUTES.HOMEPAGE}

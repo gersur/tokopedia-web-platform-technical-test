@@ -6,13 +6,13 @@ const BundleAnalyzerPlugin =
   require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CompressionPlugin = require('compression-webpack-plugin');
 const zlib = require('zlib');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.tsx',
   target: 'web',
   output: {
     path: path.join(__dirname, '/dist'),
-    publicPath: '/',
     filename: '[name].[fullhash:8].bundle.js',
     chunkFilename: '[name].[fullhash:8].bundle.js',
     clean: true,
@@ -45,6 +45,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.gh_pages': JSON.stringify(process.env.gh_pages),
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
       hash: true,
