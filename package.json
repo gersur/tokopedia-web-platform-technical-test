@@ -54,7 +54,6 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "file-loader": "^6.2.0",
-    "mini-css-extract-plugin": "^2.5.2",
     "node-sass": "^7.0.1",
     "postcss-loader": "^6.2.1",
     "prettier": "^2.5.1",
