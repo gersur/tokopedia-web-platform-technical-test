@@ -4,16 +4,16 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage
 import thunk from 'redux-thunk';
 
-import data from './data';
+import myPokemonSlice from '../actions/my-pokemon';
 
 const rootReducer = combineReducers({
-  data,
+  myPokemonSlice,
 });
 
 const persistConfig = {
   key: 'root',
   storage: storage,
-  whitelist: ['data'], // elements that will be persisted
+  whitelist: ['myPokemonSlice'], // elements that will be persisted
   blacklist: [], // elements that will not be persisted
 };
 

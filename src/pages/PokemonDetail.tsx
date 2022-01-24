@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Icon } from '@iconify/react';
 import { LoadingButton } from '@mui/lab';
 import {
+  Alert,
   Button,
   Card,
   CardActionArea,
@@ -19,17 +20,18 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
+  Snackbar,
   styled,
   SvgIcon,
   TextField,
-  Typography,
 } from '@mui/material';
-import { maxWidth } from '@mui/system';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { GET_POKEMON, pokemon, pokemonVariables } from '@/api';
 import PageLayout from '@/components/PageLayout';
+import { useAppDispatch } from '@/hooks';
+import { addMyPokemon } from '@/store';
 import { capitalizeFirstLetter, kebabCaseToTitle } from '@/utility';
 
 import NotFoundPage from './NotFoundPage';
@@ -45,16 +47,21 @@ const PokemonDetail: React.FC = () => {
   const pokemonName = (useParams().pokemonName ?? '').trim().toLowerCase();
   const pokemonNameValid = !(pokemonName.length == 0);
 
+  const dispatch = useAppDispatch();
+
   const [imageToggle, setImageToggle] = useState(false);
   const [catchLoading, setCatchLoading] = React.useState(false);
   const [dialogSuccess, setDialogSuccess] = React.useState(false);
   const [dialogFail, setDialogFail] = React.useState(false);
-  let nickname = '';
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
 
   const closeDialog = () => {
     setDialogSuccess(false);
     setDialogFail(false);
-    nickname = '';
+    setNickname('');
   };
 
   const { loading, error, data } = useQuery<pokemon, pokemonVariables>(
@@ -81,6 +88,7 @@ const PokemonDetail: React.FC = () => {
     <PageLayout title={title}>
       <Paper>
         <Grid container>
+          <Grid item xs={12}></Grid>
           <Grid item xs={12} md={3} sx={{ padding: 2 }}>
             <h2 style={{ marginLeft: 32 }}>
               {capitalizeFirstLetter(pokemon.name ?? '')}
@@ -224,6 +232,7 @@ const PokemonDetail: React.FC = () => {
             loadingPosition="end"
             variant="contained"
             onClick={() => {
+              setErrorMessage('');
               setCatchLoading(true);
               const success = Math.random() < 0.5;
               setTimeout(() => {
@@ -241,17 +250,59 @@ const PokemonDetail: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={dialogSuccess} onClose={closeDialog}>
+      <Dialog open={dialogSuccess} fullWidth>
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            alert(nickname);
+
+            const nicknameTemp = nickname.trim();
+            if (nicknameTemp.length == 0) {
+              setNickname('');
+              return setErrorMessage('Nickname cannot be empty');
+            }
+
+            try {
+              dispatch(
+                addMyPokemon({
+                  backSprite: pokemon.sprites!.back_default!,
+                  frontSprite: pokemon.sprites!.front_default!,
+                  idPokemon: pokemon.id!,
+                  nickName: nicknameTemp,
+                  pokemonName: pokemon.name!,
+                })
+              );
+            } catch (err) {
+              if (typeof err === 'string') {
+                setErrorMessage(err);
+              } else if (err instanceof Error) {
+                setErrorMessage(err.message);
+              }
+
+              return;
+            }
+            setSnackbarMessage(
+              `${nickname} (${capitalizeFirstLetter(
+                pokemon.name!
+              )}) is in the bag!`
+            );
+            setSnackbarOpen(true);
+
             closeDialog();
           }}
         >
           <DialogTitle>GOTCHA!</DialogTitle>
           <DialogContent>
             <DialogContentText>
+              {errorMessage != '' && (
+                <Alert
+                  severity="error"
+                  sx={{
+                    m: 2,
+                  }}
+                >
+                  {errorMessage}
+                </Alert>
+              )}
               <img
                 src={pokemon.sprites!.front_default!}
                 alt={data?.pokemon?.name ?? ''}
@@ -267,9 +318,10 @@ const PokemonDetail: React.FC = () => {
               </p>
               <TextField
                 required
+                fullWidth
                 label="Nickname"
                 helperText="Give some nickname to keep"
-                onInput={(e) => (nickname = (e.target as any).value)}
+                onInput={(e) => setNickname((e.target as any).value)}
               />
             </DialogContentText>
           </DialogContent>
@@ -306,6 +358,14 @@ const PokemonDetail: React.FC = () => {
           <Button onClick={closeDialog}>OK</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
+        autoHideDuration={5000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </PageLayout>
   );
 };
